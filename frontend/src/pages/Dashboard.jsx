@@ -6,9 +6,13 @@ export default function Dashboard() {
   const nav = useNavigate();
 
   function handleLogout() {
-    // later we clear token here
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
     nav("/");
   }
+
+  const username = localStorage.getItem("username") || "User";
+
   const history = JSON.parse(localStorage.getItem("robin_chat") || "[]");
 
   return (
@@ -28,8 +32,8 @@ export default function Dashboard() {
               ))}
           </div>
 
-          <div className="avatar">R</div>
-          <h3>Raj</h3>
+          <div className="avatar">{username.charAt(0).toUpperCase()}</div>
+          <h3>{username}</h3>
           <p className="status">Online</p>
         </div>
 

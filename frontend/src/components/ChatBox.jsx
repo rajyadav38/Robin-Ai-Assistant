@@ -14,25 +14,45 @@ export default function ChatBox() {
   const [listening, setListening] = useState(false);
 
   const bottomRef = useRef(null);
+  function speak(text) {
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 1;
+    utter.pitch = 1;
+    utter.lang = "en-US";
+    speechSynthesis.speak(utter);
+  }
 
-  function sendMessage(text = input) {
+  async function sendMessage(text = input) {
     if (!text.trim()) return;
 
     const userMsg = { text, sender: "user" };
-
     setMessages((prev) => [...prev, userMsg]);
-
     setInput("");
 
     setTyping(true);
 
-    setTimeout(() => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      const data = await res.json();
+
+      setMessages((prev) => [...prev, { text: data.reply, sender: "bot" }]);
+
+      speak(data.reply);
+    } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { text: "Processing your request...", sender: "bot" },
+        { text: "Backend connection error", sender: "bot" },
       ]);
-      setTyping(false);
-    }, 800);
+    }
+
+    setTyping(false);
   }
 
   // 🎤 Voice recognition

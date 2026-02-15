@@ -2,7 +2,10 @@ import webbrowser
 import os
 import time
 import sys
-from core.speech import speak
+def speak(text):
+    print(f"ROBIN: {text}")
+DANGEROUS_COMMANDS = ["shutdown", "exit", "sleep"]
+
 
 def handle_command(command: str):
     if "open spotify" in command or "play music" in command:
@@ -34,7 +37,7 @@ def handle_command(command: str):
         return "sleep"
 
     if "exit" in command or "shutdown" in command:
-        speak("Shutting down. Goodbye.")
-        sys.exit()
+        return "confirm_shutdown"
+
 
     return "ai"
