@@ -10,3 +10,4 @@ if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY not set")
 
 print("Loaded Key:", GEMINI_API_KEY)
+
