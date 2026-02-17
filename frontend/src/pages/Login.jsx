@@ -8,7 +8,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   async function handleLogin() {
-    const res = await fetch("http://127.0.0.1:8000/login", {
+    const res = await fetch("https://robin-ai-assistant.onrender.com/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
