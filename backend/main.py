@@ -50,13 +50,18 @@ def login(data: dict):
     email = data.get("email")
     password = data.get("password")
 
-    cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
+    cursor.execute("SELECT * FROM users WHERE email=%s", [email])
     user = cursor.fetchone()
 
     if not user:
         return {"error": "User not found"}
 
-    if bcrypt.checkpw(password.encode(), user["password"].encode()):
+    stored_pw = user.get("password")
+
+    if not stored_pw:
+        return {"error": "Account corrupted. Signup again."}
+
+    if bcrypt.checkpw(password.encode(), stored_pw.encode()):
         token = str(uuid.uuid4())
         return {
             "message": "Login success",
