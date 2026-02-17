@@ -37,13 +37,16 @@ def signup(data: dict):
     email = data.get("email")
     password = data.get("password")
 
-    hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+    hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
-    sql = "INSERT INTO users (username,email,password) VALUES (%s,%s,%s)"
-    cursor.execute(sql, (username, email, hashed))
-    conn.commit()
+    try:
+        sql = "INSERT INTO users (username,email,password) VALUES (%s,%s,%s)"
+        cursor.execute(sql, (username, email, hashed))
+        conn.commit()
+        return {"message": "User created"}
+    except Exception as e:
+        return {"error": "Email already exists"}
 
-    return {"message": "User created"}
 
 @app.post("/login")
 def login(data: dict):
