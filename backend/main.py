@@ -2,10 +2,9 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from core.ai import ai_response
 from fastapi.middleware.cors import CORSMiddleware
-from db import conn, cursor
 import bcrypt
 import uuid
-
+from db import get_db
 origins = [
     "https://robin-ai-assistant.vercel.app",  # your frontend URL
 ]
@@ -33,38 +32,41 @@ def chat(msg: Message):
 
 @app.post("/signup")
 def signup(data: dict):
+    conn, cursor = get_db()
+
     username = data.get("username")
     email = data.get("email")
     password = data.get("password")
 
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
-    try:
-        sql = "INSERT INTO users (username,email,password) VALUES (%s,%s,%s)"
-        cursor.execute(sql, (username, email, hashed))
-        conn.commit()
-        return {"message": "User created"}
-    except Exception as e:
-        return {"error": "Email already exists"}
+    sql = "INSERT INTO users (username,email,password) VALUES (%s,%s,%s)"
+    cursor.execute(sql, (username, email, hashed))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return {"message": "User created"}
 
 
 @app.post("/login")
 def login(data: dict):
+    conn, cursor = get_db()
+
     email = data.get("email")
     password = data.get("password")
 
     cursor.execute("SELECT * FROM users WHERE email=%s", [email])
     user = cursor.fetchone()
 
+    cursor.close()
+    conn.close()
+
     if not user:
         return {"error": "User not found"}
 
-    stored_pw = user.get("password")
-
-    if not stored_pw:
-        return {"error": "Account corrupted. Signup again."}
-
-    if bcrypt.checkpw(password.encode(), stored_pw.encode()):
+    if bcrypt.checkpw(password.encode(), user["password"].encode()):
         token = str(uuid.uuid4())
         return {
             "message": "Login success",
@@ -73,3 +75,4 @@ def login(data: dict):
         }
 
     return {"error": "Invalid password"}
+
