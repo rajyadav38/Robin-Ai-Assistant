@@ -6,11 +6,13 @@ from db import conn, cursor
 import bcrypt
 import uuid
 
-
+origins = [
+    "https://robin-ai-assistant.vercel.app",  # your frontend URL
+]
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
